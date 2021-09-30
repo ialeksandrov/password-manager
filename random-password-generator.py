@@ -1,7 +1,13 @@
+import sys
 import random
 import string
+import argparse
 
-length = int(input('\nEnter the length of password: '))
+parser = argparse.ArgumentParser(description="Process arguments")
+parser.add_argument('--length', dest='length', help='Set the length of the password')
+args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
+
+length = int(args.length)
 
 lower = string.ascii_lowercase
 upper = string.ascii_uppercase
