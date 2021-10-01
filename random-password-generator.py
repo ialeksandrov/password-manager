@@ -3,7 +3,7 @@ import random
 import string
 import argparse
 
-parser = argparse.ArgumentParser(description="Process arguments")
+parser = argparse.ArgumentParser(description="Password management tool")
 parser.add_argument('--length', dest='length', help='Set the length of the password')
 parser.add_argument('--save', dest='save', help='Save the password')
 args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
