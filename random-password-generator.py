@@ -11,22 +11,29 @@ args = parser.parse_args(args=None if sys.argv[1:] else ['--help'])
 generated_passwords = 'generated_passwords.txt'
 
 
-length = int(args.length)
-lower = string.ascii_lowercase
-upper = string.ascii_uppercase
-numbers = string.digits
-symbols = string.punctuation
-all = lower + upper + numbers + symbols
-temp = random.sample(all, length)
-password = "".join(temp)
-with open(generated_passwords, 'a+') as f:
-    f.write(', '.join(f.read().split('\n')) + password + '\n')
+def generate_password(length):
+    length = int(args.length)
+    lower = string.ascii_lowercase
+    upper = string.ascii_uppercase
+    numbers = string.digits
+    symbols = string.punctuation
+    all = lower + upper + numbers + symbols
+    temp = random.sample(all, length)
+    password = "".join(temp)
+    with open(generated_passwords, 'a+') as f:
+        f.write(', '.join(f.read().split('\n')) + password + '\n')
+
+    return password
 
 
-with open(generated_passwords) as file:
-    saved_passwords = []
-    lines = file.read().split('\n')
-    saved_passwords.append(lines)
-    print(saved_passwords)
+def save_password():
+    with open(generated_passwords, 'r') as file:
+        saved_passwords = []
+        lines = file.readlines()[-1]
+        saved_passwords.append(lines)
+
+        return saved_passwords
 
 
+#print(generate_password(12))
+#print(save_password())
