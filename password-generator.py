@@ -2,7 +2,7 @@ import sys
 import random
 import string
 import argparse
-
+import pickle
 
 generated_passwords = 'generated_passwords.txt'
 
@@ -27,7 +27,6 @@ def save_password():
         saved_passwords = []
         lines = file.readlines()[-1]
         saved_passwords.append(lines.strip())
-        print(saved_passwords)
 
         return saved_passwords
 
