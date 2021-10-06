@@ -32,7 +32,7 @@ def save_password():
 
 
 parser = argparse.ArgumentParser(description="Password management tool")
-parser.add_argument('--length', dest='length', required=True, help='Set the length of the password')
+parser.add_argument('--length', dest='length', help='Set the length of the password')
 parser.add_argument('--save', dest='save', help='Save the password')
 subparser = parser.add_subparsers()
 save_parser = subparser.add_parser('save_password', help='Save the generated password.')
@@ -40,6 +40,10 @@ save_parser.set_defaults(func=save_password)
 args = parser.parse_args()
 
 
-print(generate_password(12))
-print(save_password())
+if sys.argv[1] == '--length':
+    print(generate_password(args.length))
+
+if sys.argv[-1] == 'save_password':
+    print(save_password())
+
 
