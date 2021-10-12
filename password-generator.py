@@ -2,9 +2,9 @@ import sys
 import random
 import string
 import argparse
-import pickle
 
 generated_passwords = 'generated_passwords.txt'
+saved_passwords = 'saved_passwords.txt'
 
 
 def generate_password(length):
@@ -24,11 +24,18 @@ def generate_password(length):
 
 def save_password():
     with open(generated_passwords, 'r') as file:
-        saved_passwords = []
-        lines = file.readlines()[-1]
-        saved_passwords.append(lines.strip())
+        with open(saved_passwords, 'a') as f:
+            lines = file.readlines()[-1]
+            f.write(lines)
 
-        return saved_passwords
+    return lines
+
+
+def list_saved_password():
+    with open(saved_passwords, 'r') as fp:
+        lines = fp.readlines()
+
+    return lines
 
 
 parser = argparse.ArgumentParser(description="Password management tool")
@@ -36,7 +43,9 @@ parser.add_argument('--length', dest='length', help='Set the length of the passw
 parser.add_argument('--save', dest='save', help='Save the password')
 subparser = parser.add_subparsers()
 save_parser = subparser.add_parser('save_password', help='Save the generated password.')
+list_parser = subparser.add_parser('list', help='List all saved passwords.')
 save_parser.set_defaults(func=save_password)
+list_parser.set_defaults(func=list_saved_password)
 args = parser.parse_args()
 
 
@@ -46,4 +55,5 @@ if sys.argv[1] == '--length':
 if sys.argv[-1] == 'save_password':
     print(save_password())
 
-
+if sys.argv[-1] == 'list':
+    print(list_saved_password())
