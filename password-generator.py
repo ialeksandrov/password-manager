@@ -43,12 +43,14 @@ def list_saved_password():
 
 parser = argparse.ArgumentParser(description="Password management tool")
 parser.add_argument('--length', dest='length', help='Set the length of the password')
-parser.add_argument('--save', dest='save', help='Save the password')
 subparser = parser.add_subparsers()
 save_parser = subparser.add_parser('save_password', help='Save the generated password.')
 list_parser = subparser.add_parser('list', help='List all saved passwords.')
 save_parser.set_defaults(func=save_password)
 list_parser.set_defaults(func=list_saved_password)
+if len(sys.argv) == 1:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
 args = parser.parse_args()
 
 
