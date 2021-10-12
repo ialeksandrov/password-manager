@@ -32,10 +32,13 @@ def save_password():
 
 
 def list_saved_password():
+    result = []
     with open(saved_passwords, 'r') as fp:
         lines = fp.readlines()
+        for line in lines:
+            result.append(line.strip())
 
-    return lines
+    return result
 
 
 parser = argparse.ArgumentParser(description="Password management tool")
