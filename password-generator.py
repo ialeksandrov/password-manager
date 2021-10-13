@@ -41,13 +41,24 @@ def list_saved_password():
     return converted_list
 
 
+def list_last_saved():
+    last_saved = []
+    with open(saved_passwords, 'r') as fp:
+        lines = fp.readlines()[-1]
+        last_saved.append(lines.strip())
+
+    return last_saved
+
+
 parser = argparse.ArgumentParser(description="Password management tool")
 parser.add_argument('--length', dest='length', help='Set the length of the password')
-subparser = parser.add_subparsers()
-save_parser = subparser.add_parser('save_password', help='Save the generated password.')
-list_parser = subparser.add_parser('list', help='List all saved passwords.')
+sub_parser = parser.add_subparsers()
+save_parser = sub_parser.add_parser('save_password', help='Save the generated password.')
+list_parser = sub_parser.add_parser('list', help='List all saved passwords.')
+list_last_parser = sub_parser.add_parser('list_last_saved', help='Show the last saved password.')
 save_parser.set_defaults(func=save_password)
 list_parser.set_defaults(func=list_saved_password)
+list_last_parser.set_defaults(func=list_last_saved)
 if len(sys.argv) == 1:
     parser.print_help(sys.stderr)
     sys.exit(1)
@@ -62,3 +73,6 @@ if sys.argv[-1] == 'save_password':
 
 if sys.argv[-1] == 'list':
     print(list_saved_password())
+
+if sys.argv[-1] == 'list_last_saved':
+    print(list_last_saved())
