@@ -3,6 +3,7 @@
 This simple cli tool has two abilities at the moment:
 - generate password with custom length (provided by the user)
 - save the generated password and display it.
+- show list of all saved passwords.
 
 Future ideas:
 - ~~List all saved passwords.~~ -> Done
