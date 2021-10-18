@@ -50,8 +50,25 @@ def list_saved():
     return last_saved
 
 
+# FIXME: read the file, then convert the output to a list and then remove the specified element.
+def remove_password(password):
+    result = []
+    with open(saved_passwords, 'r') as file:
+        for lines in file:
+            if args.password in lines:
+                lines = lines.replace(args.password, '')
+        result.append(lines.strip())
+
+    with open(saved_passwords, 'w+') as f:
+        for lines in result:
+            f.write(lines.strip())
+
+    return result
+
+
 parser = argparse.ArgumentParser(description="Password management tool")
 parser.add_argument('--length', dest='length', help='Set the length of the password')
+parser.add_argument('--remove', dest='password', help='Remove old or unused passwords')
 sub_parser = parser.add_subparsers()
 save_parser = sub_parser.add_parser('save_password', help='Save the generated password.')
 list_parser = sub_parser.add_parser('list', help='List all saved passwords.')
@@ -76,3 +93,6 @@ if sys.argv[-1] == 'list':
 
 if sys.argv[-1] == 'list_saved':
     print(list_saved())
+
+if sys.argv[1] == '--remove':
+    print(remove_password(args.password))
