@@ -50,18 +50,19 @@ def list_saved():
     return last_saved
 
 
-# FIXME: read the file, then convert the output to a list and then remove the specified element.
 def remove_password(password):
     result = []
     with open(saved_passwords, 'r') as file:
         for lines in file:
-            if args.password in lines:
-                lines = lines.replace(args.password, '')
-        result.append(lines.strip())
+            result.append(lines.strip())
 
-    with open(saved_passwords, 'w+') as f:
-        for lines in result:
-            f.write(lines.strip())
+    for items in result:
+        if args.password in result:
+            result.remove(args.password)
+
+    with open(saved_passwords, 'w') as f:
+        for items in result:
+            f.write(items + '\n')
 
     return result
 
