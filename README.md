@@ -5,6 +5,8 @@ This simple cli tool has two abilities at the moment:
 - save the generated password and display it.
 - show list of all saved passwords.
 - show last saved password.
+- Remove old passwords.
+- Add custom passwords.
 
 Future ideas:
 - ~~List all saved passwords.~~ -> Done
