@@ -67,13 +67,22 @@ def remove_password(password):
     return result
 
 
+def add_custom_password(password):
+    password = args.add
+    with open(saved_passwords, 'a') as f:
+        f.write(password + '\n')
+
+    return password
+
+
 parser = argparse.ArgumentParser(description="Password management tool")
 parser.add_argument('--length', dest='length', help='Set the length of the password')
 parser.add_argument('--remove', dest='password', help='Remove old or unused passwords')
+parser.add_argument('--add', dest='add', help='Add custom password to saved passwords')
 sub_parser = parser.add_subparsers()
-save_parser = sub_parser.add_parser('save_password', help='Save the generated password.')
+save_parser = sub_parser.add_parser('save_password', help='Save the generated password')
 list_parser = sub_parser.add_parser('list', help='List all saved passwords.')
-list_last_parser = sub_parser.add_parser('list_saved', help='Show the last saved password.')
+list_last_parser = sub_parser.add_parser('list_saved', help='Show the last saved password')
 save_parser.set_defaults(func=save_password)
 list_parser.set_defaults(func=list_saved_password)
 list_last_parser.set_defaults(func=list_saved)
@@ -97,3 +106,6 @@ if sys.argv[-1] == 'list_saved':
 
 if sys.argv[1] == '--remove':
     print(remove_password(args.password))
+
+if sys.argv[1] == '--add':
+    print(add_custom_password(args.password))
