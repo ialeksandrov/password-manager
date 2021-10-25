@@ -14,3 +14,4 @@ Future ideas:
 - Probably develop GUI version with tkinter or pyQT.(or both, or some modern gui framework.)
 - Think for a way to improve password generation.(better way)
 - Think for a way to improve password storing.(better way)
+- Write unit tests.
