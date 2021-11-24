@@ -11,29 +11,29 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Password Manager")
 
-        generate_button = QPushButton("Generate", self)
-        generate_button.resize(100, 32)
-        generate_button.move(170, 300)
+        self.generate_button = QPushButton("Generate", self)
+        self.generate_button.resize(100, 32)
+        self.generate_button.move(170, 300)
 
-        save_button = QPushButton("Save", self)
-        save_button.resize(100, 32)
-        save_button.move(290, 300)
+        self.save_button = QPushButton("Save", self)
+        self.save_button.resize(100, 32)
+        self.save_button.move(290, 300)
 
-        list_saved_button = QPushButton("List saved", self)
-        list_saved_button.resize(100, 32)
-        list_saved_button.move(410, 300)
+        self.list_saved_button = QPushButton("List saved", self)
+        self.list_saved_button.resize(100, 32)
+        self.list_saved_button.move(410, 300)
 
-        list_all_button = QPushButton("List all", self)
-        list_all_button.resize(100, 32)
-        list_all_button.move(530, 300)
+        self.list_all_button = QPushButton("List all", self)
+        self.list_all_button.resize(100, 32)
+        self.list_all_button.move(530, 300)
 
-        remove_button = QPushButton("Remove", self)
-        remove_button.resize(100, 32)
-        remove_button.move(650, 300)
+        self.remove_button = QPushButton("Remove", self)
+        self.remove_button.resize(100, 32)
+        self.remove_button.move(650, 300)
 
-        add_custom_button = QPushButton("Add", self)
-        add_custom_button.resize(100, 32)
-        add_custom_button.move(50, 300)
+        self.add_custom_button = QPushButton("Add", self)
+        self.add_custom_button.resize(100, 32)
+        self.add_custom_button.move(50, 300)
 
         self.textbox = QLineEdit(self)
         self.textbox.move(50, 350)
