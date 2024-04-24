@@ -42,4 +42,27 @@ def create_password(title, username, password):
     return title, username, password
 
 
-#create_password('os creds', 'ivan', 'sSSxcgW#3232Sa')
+def update_password(title, username, new_password):
+    cursor = conn.cursor()
+    cursor.execute('UPDATE users SET password = ? WHERE username = ? and title = ?', (new_password, username, title))
+    conn.commit()
+    cursor.close()
+
+
+
+def get_password(username):
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    return user
+
+
+def delete_password(username):
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM users WHERE username = ?', (username,))
+    conn.commit()
+    cursor.close()
+
+
