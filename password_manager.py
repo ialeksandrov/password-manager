@@ -49,7 +49,6 @@ def update_password(title, username, new_password):
     cursor.close()
 
 
-
 def get_password(username):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
