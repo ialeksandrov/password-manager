@@ -1,10 +1,8 @@
 # password-manager
 
 This simple cli tool has two abilities at the moment:
-- generate password with custom length (provided by the user)
-- save the generated password and display it.
+- generate password with custom length (provided by the user).
 - show list of all saved passwords.
-- show last saved password.
 - Remove old passwords.
 - Add custom passwords.
 
@@ -15,5 +13,43 @@ Future ideas:
 - ~~Add the ability the user to add custom password to saved passwords.~~ -> Done
 - Probably develop GUI version with tkinter or pyQT.(or both, or some modern gui framework.)
 - Think for a way to improve password generation.(better way)
-- Think for a way to improve password storing.(better way)
+- ~~Think for a way to improve password storing.(better way)~~ - use DB SQL lite - Done
 - Write unit tests.
+
+CLI HELP:
+```
+$ python password_manager.py -h
+usage: Password Manager [-h] [--title TITLE] [--username USERNAME] [--password PASSWORD] {add,list,update,delete}
+
+Managing passwords and users
+
+positional arguments:
+  {add,list,update,delete}
+                        Actions to perform
+
+options:
+  -h, --help            show this help message and exit
+  --title TITLE         Title of the password entry
+  --username USERNAME   Username for the password entry
+  --password PASSWORD   Password for the entry
+```
+
+Sample usage:
+```
+$ python password_manager.py add --title 'os creds' --username 'pesho' --password 'jijiplqktor'
+```
+
+```
+$ python password_manager.py update --title 'os creds' --username 'pesho' --password '123456'
+```
+
+```
+$ python password_manager.py list --username 'pesho'
+(1, 'os creds', 'pesho', '123456')
+```
+
+```
+$ python password_manager.py delete --title 'os creds'
+```
+
+
