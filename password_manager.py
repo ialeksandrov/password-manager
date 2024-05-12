@@ -5,7 +5,11 @@ import argparse
 import sqlite3
 
 
-conn = sqlite3.connect('password_manager.db')
+
+DB_FILE='password_manager.db'
+
+
+conn = sqlite3.connect(DB_FILE)
 cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
@@ -42,9 +46,9 @@ def create_password(title, username, password):
     return title, username, password
 
 
-def update_password(title, username, new_password):
+def update_password(title, new_username, new_password):
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET password = ? WHERE username = ? and title = ?', (new_password, username, title))
+    cursor.execute('UPDATE users SET username = ?, password = ? WHERE title = ?', (new_username, new_password, title))
     conn.commit()
     cursor.close()
 
@@ -58,10 +62,29 @@ def get_password(username):
     return user
 
 
-def delete_password(username):
+def delete_password(title):
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM users WHERE username = ?', (username,))
+    cursor.execute('DELETE FROM users WHERE title = ?', (title,))
     conn.commit()
     cursor.close()
 
 
+
+parser = argparse.ArgumentParser(prog='Password Manager', 
+                                description='Managing passwords and users')
+
+parser.add_argument('action', choices=['add', 'list', 'update', 'delete'], help='Actions to perform')
+parser.add_argument('--title', help='Title of the password entry')
+parser.add_argument('--username', help='Username for the password entry')
+parser.add_argument('--password', help='Password for the entry')
+
+args = parser.parse_args()
+
+if args.action == 'add':
+    create_password(args.title, args.username, args.password)
+elif args.action == 'update':
+    update_password(args.title, args.username, args.password)
+elif args.action == 'list':
+    print(get_password(args.username))
+elif args.action == 'delete':
+    delete_password(args.title)
