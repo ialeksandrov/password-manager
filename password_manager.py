@@ -1,13 +1,10 @@
-import sys
 import random
 import string
 import argparse
 import sqlite3
 
 
-
-DB_FILE='password_manager.db'
-
+DB_FILE = 'password_manager.db'
 
 conn = sqlite3.connect(DB_FILE)
 cursor = conn.cursor()
@@ -69,9 +66,7 @@ def delete_password(title):
     cursor.close()
 
 
-
-parser = argparse.ArgumentParser(prog='Password Manager', 
-                                description='Managing passwords and users')
+parser = argparse.ArgumentParser(prog='Password Manager', description='Managing passwords and users')
 
 parser.add_argument('action', choices=['add', 'list', 'update', 'delete'], help='Actions to perform')
 parser.add_argument('--title', help='Title of the password entry')
