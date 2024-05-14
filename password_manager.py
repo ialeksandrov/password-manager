@@ -68,10 +68,11 @@ def delete_password(title):
 
 parser = argparse.ArgumentParser(prog='Password Manager', description='Managing passwords and users')
 
-parser.add_argument('action', choices=['add', 'list', 'update', 'delete'], help='Actions to perform')
+parser.add_argument('action', choices=['add', 'list', 'generate', 'update', 'delete'], help='Actions to perform')
 parser.add_argument('--title', help='Title of the password entry')
 parser.add_argument('--username', help='Username for the password entry')
 parser.add_argument('--password', help='Password for the entry')
+parser.add_argument('--length', help='Length of the password entry')
 
 args = parser.parse_args()
 
@@ -81,5 +82,7 @@ elif args.action == 'update':
     update_password(args.title, args.username, args.password)
 elif args.action == 'list':
     print(get_password(args.username))
+elif args.action == 'generate':
+    print(generate_password(args.length))
 elif args.action == 'delete':
     delete_password(args.title)
