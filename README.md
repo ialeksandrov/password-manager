@@ -52,4 +52,6 @@ $ python password_manager.py list --username 'pesho'
 $ python password_manager.py delete --title 'os creds'
 ```
 
-
+```
+$ python password_manager.py generate --length 20
+````
