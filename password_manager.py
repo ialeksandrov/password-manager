@@ -13,7 +13,8 @@ cursor.execute('''
         id INTEGER PRIMARY KEY,
         title TEXT,
         username TEXT,
-        password TEXT
+        password TEXT,
+        UNIQUE(title, username)
     )
 ''')
 
@@ -43,9 +44,9 @@ def create_password(title, username, password):
     return title, username, password
 
 
-def update_password(title, new_username, new_password):
+def update_password(title, username, new_password):
     cursor = conn.cursor()
-    cursor.execute('UPDATE users SET username = ?, password = ? WHERE title = ?', (new_username, new_password, title))
+    cursor.execute('UPDATE users SET password = ? WHERE title = ? AND username = ?', (new_password, title, username))
     conn.commit()
     cursor.close()
 
