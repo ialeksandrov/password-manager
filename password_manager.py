@@ -96,7 +96,7 @@ def delete_password(title):
 
 parser = argparse.ArgumentParser(prog='Password Manager', description='Managing passwords and users')
 
-parser.add_argument('action', choices=['add', 'list', 'generate', 'update', 'delete'], help='Actions to perform')
+parser.add_argument('action', choices=['add', 'verify', 'generate', 'update', 'delete'], help='Actions to perform')
 parser.add_argument('--title', help='Title of the password entry')
 parser.add_argument('--username', help='Username for the password entry')
 parser.add_argument('--password', help='Password for the entry')
