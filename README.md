@@ -45,8 +45,8 @@ $ python password_manager.py update --title 'os creds' --username 'pesho' --pass
 ```
 
 ```
-$ python password_manager.py list --username 'pesho'
-(1, 'os creds', 'pesho', '123456')
+$ python password_manager.py verify --title "test" --username "test123" --password "password123"
+Password is correct
 ```
 
 ```
