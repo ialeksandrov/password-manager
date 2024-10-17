@@ -12,7 +12,7 @@ Future ideas:
 - ~~Remove old passwords ( passwords you don`t want to use anymore.)~~ -> Done
 - ~~Add the ability the user to add custom password to saved passwords.~~ -> Done
 - Probably develop GUI version with tkinter or pyQT.(or both, or some modern gui framework.)
-- ~~Add hashing using Argon2 algorithm.~~
+- Think for password entry encryption. Hashing is a good practice to be used for master password
 - ~~Think for a way to improve password generation.(better way)~~
 - ~~Think for a way to improve password storing.(better way)~~ - use DB SQL lite - Done
 - Write unit tests.
@@ -45,8 +45,8 @@ $ python password_manager.py update --title 'os creds' --username 'pesho' --pass
 ```
 
 ```
-$ python password_manager.py verify --title "test" --username "test123" --password "password123"
-Password is correct
+$ python password_manager.py list --username "test123"
+(6, 'test', 'test123', 'password2123')
 ```
 
 ```
