@@ -3,8 +3,6 @@ import string
 import argparse
 import sqlite3
 
-from passlib.hash import argon2
-
 
 DB_FILE = 'password_manager.db'
 
@@ -39,14 +37,8 @@ def generate_password(length):
 
 def create_password(title, username, password):
     cursor = conn.cursor()
-    
-    hashed_password = argon2.hash(password)
-    
-    try:
-        cursor.execute('INSERT INTO users (title, username, password) VALUES (?, ?, ?)', (title, username, hashed_password))
-        print(f'Password added: Title={title}, Username={username}')
-    except sqlite3.IntegrityError:
-        print(f'Entry with Title={title} and Username={username} already exists.')
+
+    cursor.execute('INSERT INTO users (title, username, password) VALUES (?, ?, ?)', (title, username, password))
 
     conn.commit()
     cursor.close()
@@ -55,37 +47,20 @@ def create_password(title, username, password):
 def update_password(title, username, new_password):
     cursor = conn.cursor()
 
-    hashed_password = argon2.hash(new_password)
-
-    cursor.execute('UPDATE users SET password = ? WHERE title = ? AND username = ?', (hashed_password, title, username))
-    if cursor.rowcount == 0:
-        print("No entry found with the given title and username")
-    else:
-        print("Password updated successfully")
+    cursor.execute('UPDATE users SET password = ? WHERE title = ? AND username = ?', (new_password, title, username))
 
     conn.commit()
     cursor.close()
 
 
-def verify_password(title, username, password):
+def get_password(username):
     cursor = conn.cursor()
 
-    cursor.execute('SELECT password FROM users WHERE title = ? AND username = ?', (title, username))
-
-    result = cursor.fetchone()
-
-    if result:
-        hashed_password = result[0]
-
-        if argon2.verify(password, hashed_password):
-            print("Password is correct")
-        else:
-            print("Password is incorrect")
-    else:
-        print("No entry found with the given title and username")
-
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    user = cursor.fetchone()
     cursor.close()
 
+    return user
 
 def delete_password(title):
     cursor = conn.cursor()
@@ -96,7 +71,7 @@ def delete_password(title):
 
 parser = argparse.ArgumentParser(prog='Password Manager', description='Managing passwords and users')
 
-parser.add_argument('action', choices=['add', 'verify', 'generate', 'update', 'delete'], help='Actions to perform')
+parser.add_argument('action', choices=['add', 'list', 'generate', 'update', 'delete'], help='Actions to perform')
 parser.add_argument('--title', help='Title of the password entry')
 parser.add_argument('--username', help='Username for the password entry')
 parser.add_argument('--password', help='Password for the entry')
@@ -108,8 +83,8 @@ if args.action == 'add':
     create_password(args.title, args.username, args.password)
 elif args.action == 'update':
     update_password(args.title, args.username, args.password)
-elif args.action == 'verify':
-    print(verify_password(args.title, args.username, args.password))
+elif args.action == 'list':
+    print(get_password(args.username))
 elif args.action == 'generate':
     print(generate_password(args.length))
 elif args.action == 'delete':
