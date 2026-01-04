@@ -26,13 +26,9 @@ cursor.close()
 
 def generate_password(length):
     length = int(args.length)
-    lower = string.ascii_lowercase
-    upper = string.ascii_uppercase
-    numbers = string.digits
-    symbols = string.punctuation
-    full_set = lower + upper + numbers + symbols
-    temp = random.sample(full_set, length)
-    password = "".join(temp)
+    characters = string.ascii_letters + string.digits + string.punctuation
+
+    password = ''.join(random.choice(characters) for _ in range(length))
 
     return password
 
