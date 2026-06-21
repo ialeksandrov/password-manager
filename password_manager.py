@@ -3,7 +3,7 @@
 import os
 import base64
 import hashlib
-import random
+import secrets
 import string
 import argparse
 import sqlite3
@@ -11,7 +11,7 @@ import getpass
 
 
 from cryptography.fernet import Fernet, InvalidToken
-
+from pydantic_settings.sources.providers import secrets
 
 DB_FILE = 'password_manager.db'
 
@@ -42,7 +42,7 @@ def generate_password(length):
     length = int(args.length)
     characters = string.ascii_letters + string.digits + string.punctuation
 
-    password = ''.join(random.choice(characters) for _ in range(length))
+    password = ''.join(secrets.choice(characters) for _ in range(length))
 
     return password
 
@@ -132,7 +132,6 @@ parser = argparse.ArgumentParser(prog='Password Manager', description='Managing 
 parser.add_argument('action', choices=['add', 'list', 'generate', 'update', 'delete'], help='Actions to perform')
 parser.add_argument('--title', help='Title of the password entry')
 parser.add_argument('--username', help='Username for the password entry')
-parser.add_argument('--password', help='Password for the entry')
 parser.add_argument('--length', help='Length of the password entry')
 
 args = parser.parse_args()
@@ -159,8 +158,10 @@ else:
 
 # --- actions
 if args.action == 'add':
-    create_password(fernet, args.title, args.username, args.password)
+    password = getpass.getpass("Password to store: ")
+    create_password(fernet, args.title, args.username, password)
 elif args.action == 'update':
+    password = getpass.getpass("New password: ")
     update_password(fernet, args.title, args.username, args.password)
 elif args.action == 'list':
     print(get_password(fernet, args.username))
