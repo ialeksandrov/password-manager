@@ -109,16 +109,17 @@ def update_password(fernet: Fernet, title, username, new_password):
 
 def get_password(fernet: Fernet, username):
     cursor = conn.cursor()
-
-    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
-    user = cursor.fetchone()
+    if username:
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    else:
+        cursor.execute('SELECT * FROM users')
+    users = cursor.fetchall()
     cursor.close()
-    if not user:
-        return None
-    id_, title, uname, enc_password = user
-    password = fernet.decrypt(enc_password).decode()
 
-    return (id_, title, uname, password)
+    return [
+        (id_, title, uname, fernet.decrypt(enc_password).decode())
+        for id_, title, uname, enc_password in users
+    ]
 
 def delete_password(title):
     cursor = conn.cursor()
@@ -160,13 +161,21 @@ else:
 if args.action == 'add':
     password = getpass.getpass("Password to store: ")
     create_password(fernet, args.title, args.username, password)
+    print(f"Entry '{args.title}' added successfully.")
 elif args.action == 'update':
     password = getpass.getpass("New password: ")
-    update_password(fernet, args.title, args.username, args.password)
+    update_password(fernet, args.title, args.username, password)
+    print(f"Entry '{args.title}' updated successfully.")
 elif args.action == 'list':
-    print(get_password(fernet, args.username))
+    entries = get_password(fernet, args.username)
+    if not entries:
+        print("No entries found.")
+    else:
+        for id_, title, uname, password in entries:
+            print(f"Title: {title} | Username: {uname} | Password: {password}")
 elif args.action == 'generate':
     print(generate_password(args.length))
 elif args.action == 'delete':
     delete_password(args.title)
+    print(f"Entry '{args.title}' deleted successfully.")
 
