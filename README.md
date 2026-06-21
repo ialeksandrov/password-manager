@@ -16,7 +16,7 @@ Future ideas:
 - ~~Think for a way to improve password generation.(better way)~~
 - ~~Think for a way to improve password storing.(better way)~~ - use DB SQL lite - Done
 - ~~Add master password and encryption (decided to use Fernet)~~ -> Done
-- Write unit tests.
+- Write unit tests. - In progress
 
 CLI HELP:
 ```
@@ -33,16 +33,15 @@ options:
   -h, --help            show this help message and exit
   --title TITLE         Title of the password entry
   --username USERNAME   Username for the password entry
-  --password PASSWORD   Password for the entry
 ```
 
 Sample usage:
 ```
-$ python password_manager.py add --title 'os creds' --username 'pesho' --password 'jijiplqktor'
+$ python password_manager.py add --title 'os creds' --username 'pesho'
 ```
 
 ```
-$ python password_manager.py update --title 'os creds' --username 'pesho' --password '123456'
+$ python password_manager.py update --title 'os creds' --username 'pesho'
 ```
 
 ```
