@@ -15,6 +15,7 @@ Future ideas:
 - Think for password entry encryption. Hashing is a good practice to be used for master password
 - ~~Think for a way to improve password generation.(better way)~~
 - ~~Think for a way to improve password storing.(better way)~~ - use DB SQL lite - Done
+- ~~Add master password and encryption (decided to use Fernet)~~ -> Done
 - Write unit tests.
 
 CLI HELP:
