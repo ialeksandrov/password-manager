@@ -3,8 +3,6 @@
 import os
 import base64
 import hashlib
-import secrets
-import string
 import argparse
 import sqlite3
 import getpass
@@ -37,13 +35,7 @@ conn.commit()
 cursor.close()
 
 
-def generate_password(length):
-    length = int(length)
-    characters = string.ascii_letters + string.digits + string.punctuation
 
-    password = ''.join(secrets.choice(characters) for _ in range(length))
-
-    return password
 
 
 def derive_key(master_password: str, salt: bytes) -> bytes:
