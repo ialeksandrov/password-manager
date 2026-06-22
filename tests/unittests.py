@@ -34,10 +34,15 @@ class TestPasswordManager(unittest.TestCase):
         """Runs after every test - coses the DB connection."""
         self.conn.close()
     def test_remove_duplicate_password(self):
-        pass
+        create_password(self.conn, self.fernet, "github", "test", "secret123456")
+        with self.assertRaises(Exception):
+            create_password(self.conn, self.fernet, "github", "test", "secret1236")
 
     def test_remove_password(self):
-        pass
+        create_password(self.conn, self.fernet, "github", "test", "secret123456")
+        delete_password(self.conn, "github")
+        entries = get_password(self.conn, self.fernet, None)
+        self.assertEqual(len(entries), 0)
 
     def test_generate_password(self):
         password = generate_password(12)
@@ -48,16 +53,32 @@ class TestPasswordManager(unittest.TestCase):
         self.assertEqual(len(password), 20)
 
     def test_save_password(self):
-        pass
+        create_password(self.conn, self.fernet, "github", "test", "secret123456")
+        entries = get_password(self.conn, self.fernet, None)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0][1], "github")
+        self.assertEqual(entries[0][2], "test")
+        self.assertEqual(entries[0][3], "secret123456")
 
     def test_list_all_saved_passwords(self):
-        pass
+        create_password(self.conn, self.fernet, "github", "test", "secret123")
+        create_password(self.conn, self.fernet, "gitlab", "test", "secret1234")
+        create_password(self.conn, self.fernet, "bitbucket", "test", "secret12345")
+        entries = get_password(self.conn, self.fernet, None)
+        self.assertEqual(len(entries), 3)
 
-    def test_display_last_saved_password(self):
-        pass
+
+    def test_display_last_inserted_password(self):
+        create_password(self.conn, self.fernet, "github", "test", "secret123")
+        create_password(self.conn, self.fernet, "gitlab", "test", "secret1234")
+        create_password(self.conn, self.fernet, "bitbucket", "test", "secret12345")
+        entries = get_password(self.conn, self.fernet, None)
+        self.assertEqual(entries[-1][3], "secret12345")
 
     def test_add_custom_password(self):
-        pass
+        create_password(self.conn, self.fernet, "abv", "ialeksandrov", "Firestarter23")
+        entries = get_password(self.conn, self.fernet, None)
+        self.assertEqual(entries[0][3], "Firestarter23")
 
 
 if __name__ == "__main__":
