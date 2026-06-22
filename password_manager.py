@@ -32,11 +32,6 @@ conn.commit()
 cursor.close()
 
 
-
-
-
-
-
 def create_password(fernet: Fernet, title, username, password):
     enc_password = fernet.encrypt(password.encode())
     cursor = conn.cursor()

@@ -7,9 +7,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from cryptography.fernet import Fernet
-from password_manager import create_password, get_password, update_password, delete_password
 from generator import generate_password
 from crypto_utils import derive_key, init_master, unlock_vault
+from db import create_password, get_password, update_password, delete_password
 
 
 class TestPasswordManager(unittest.TestCase):
