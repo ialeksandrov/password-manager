@@ -11,7 +11,7 @@ from password_manager import derive_key, create_password, get_password, update_p
 from generator import generate_password
 
 class TestPasswordManager(unittest.TestCase):
-    def SetUp(self):
+    def setUp(self):
         """Runs before every test - creates a fresh in-memory DB and Fernet."""
         self.conn = sqlite3.connect(":memory:")
         self.conn.execute('''
