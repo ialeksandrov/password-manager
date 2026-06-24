@@ -44,10 +44,16 @@ if __name__ == "__main__":
 
     # --- actions
     if args.action == 'add':
+        if not args.title or not args.username:
+            print("Error: --title and --username are required for add.")
+            exit(1)
         password = getpass.getpass("Password to store: ")
         create_password(conn, fernet, args.title, args.username, password)
         print(f"Entry '{args.title}' added successfully.")
     elif args.action == 'update':
+        if not args.title or not args.username:
+            print("Error: --title and --username are required for update.")
+            exit(1)
         password = getpass.getpass("New password: ")
         update_password(conn, fernet, args.title, args.username, password)
         print(f"Entry '{args.title}' updated successfully.")
@@ -61,6 +67,9 @@ if __name__ == "__main__":
     elif args.action == 'generate':
         print(generate_password(args.length))
     elif args.action == 'delete':
+        if not args.title:
+            print("Error: --title is required for delete.")
+            exit(1)
         delete_password(conn, args.title)
         print(f"Entry '{args.title}' deleted successfully.")
 

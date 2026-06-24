@@ -25,6 +25,13 @@ class TestPasswordManager(unittest.TestCase):
                 UNIQUE(title, username)
             )
         ''')
+        self.conn.execute('''
+                CREATE TABLE IF NOT EXISTS master (
+                    id      INTEGER PRIMARY KEY,
+                    salt    BLOB NOT NULL,
+                    verify  BLOB NOT NULL
+                )
+            ''')
         self.conn.commit()
         salt = os.urandom(32)
         key = derive_key("testmaster", salt)
@@ -79,6 +86,13 @@ class TestPasswordManager(unittest.TestCase):
         create_password(self.conn, self.fernet, "abv", "ialeksandrov", "Firestarter23")
         entries = get_password(self.conn, self.fernet, None)
         self.assertEqual(entries[0][3], "Firestarter23")
+
+    def test_wrong_master_password(self):
+        pass
+
+    def test_add_password_without_username(self):
+        with self.assertRaises(Exception):
+            create_password(self.conn, self.fernet, "github", None, "secret123")
 
 
 if __name__ == "__main__":

@@ -11,9 +11,9 @@ def setup_db(conn):
     conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            title TEXT,
-            username TEXT,
-            password TEXT,
+            title TEXT NOT NULL,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
             UNIQUE(title, username)
         )
     ''')
@@ -28,6 +28,8 @@ def setup_db(conn):
 
 
 def create_password(conn, fernet: Fernet, title, username, password):
+    if not title or not username:
+        raise ValueError("Title and username are required")
     enc_password = fernet.encrypt(password.encode())
     cursor = conn.cursor()
 
