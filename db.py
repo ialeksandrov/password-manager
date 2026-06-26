@@ -1,0 +1,70 @@
+import sqlite3
+from cryptography.fernet import Fernet
+
+
+DB_FILE = 'password_manager.db'
+
+def get_conn():
+    return sqlite3.connect(DB_FILE)
+
+def setup_db(conn):
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            UNIQUE(title, username)
+        )
+    ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS master (
+            id      INTEGER PRIMARY KEY,
+            salt    BLOB NOT NULL,
+            verify  BLOB NOT NULL
+        )
+    ''')
+    conn.commit()
+
+
+def create_password(conn, fernet: Fernet, title, username, password):
+    if not title or not username:
+        raise ValueError("Title and username are required")
+    enc_password = fernet.encrypt(password.encode())
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO users (title, username, password) VALUES (?, ?, ?)', (title, username, enc_password))
+
+    conn.commit()
+    cursor.close()
+
+
+def update_password(conn, fernet: Fernet, title, username, new_password):
+    enc_password = fernet.encrypt(new_password.encode())
+    cursor = conn.cursor()
+
+    cursor.execute('UPDATE users SET password = ? WHERE title = ? AND username = ?', (enc_password, title, username))
+
+    conn.commit()
+    cursor.close()
+
+
+def get_password(conn, fernet: Fernet, username):
+    cursor = conn.cursor()
+    if username:
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    else:
+        cursor.execute('SELECT * FROM users')
+    users = cursor.fetchall()
+    cursor.close()
+
+    return [
+        (id_, title, uname, fernet.decrypt(enc_password).decode())
+        for id_, title, uname, enc_password in users
+    ]
+
+def delete_password(conn, title):
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM users WHERE title = ?', (title,))
+    conn.commit()
+    cursor.close()
