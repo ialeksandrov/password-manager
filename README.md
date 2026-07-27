@@ -11,12 +11,12 @@ Future ideas:
 - ~~Show last saved password.~~ -> Done
 - ~~Remove old passwords ( passwords you don`t want to use anymore.)~~ -> Done
 - ~~Add the ability the user to add custom password to saved passwords.~~ -> Done
-- Probably develop GUI version with tkinter or pyQT.(or both, or some modern gui framework.)
+- Probably develop GUI version with tkinter or pyQT.(or both, or some modern gui framework.) - In progress
 - ~~Think for password entry encryption. Hashing is a good practice to be used for master password~~
 - ~~Think for a way to improve password generation.(better way)~~
 - ~~Think for a way to improve password storing.(better way)~~ - use DB SQL lite - Done
 - ~~Add master password and encryption (decided to use Fernet)~~ -> Done
-- Write unit tests. - In progress
+- ~~Write unit tests.~~ - Done
 
 CLI HELP:
 ```
