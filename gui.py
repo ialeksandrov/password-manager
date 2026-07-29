@@ -38,14 +38,14 @@ class PasswordManagerApp(tk.Tk):
         if vault_exists:
             self._show_unlock()
         else:
-            self._show_setup
+            self._show_setup()
 
     def _clear(self):
         for widget in self.winfo_children():
             widget.destroy()
 
-    def _label(self, parebt, text, font=None, color=None, **kwargs):
-        return tk.Label(parebt, text=text,
+    def _label(self, parent, text, font=None, color=None, **kwargs):
+        return tk.Label(parent, text=text,
             font=font or self.FONT_BODY,
             fg=color or self.TEXT, bg=self.BG, **kwargs)
 
@@ -130,7 +130,130 @@ class PasswordManagerApp(tk.Tk):
 
     def _show_vault(self):
         self._clear()
-        self._label(self, "Vault — coming next!", font=self.FONT_TITLE).pack(pady=40)
+        self.configure(bg=self.BG)
+
+        # ---- sidebar
+        sidebar = tk.Frame(self, bg=self.SURFACE, width=200)
+        sidebar.pack(side="left", fill="y")
+        sidebar.pack_propagate(False)
+
+        tk.Label(sidebar, text="🔐", font=("Segoe UI", 28),
+                 bg=self.SURFACE, fg=self.ACCENT).pack(pady=(28, 4))
+        tk.Label(sidebar, text="Vault", font=("Segoe UI Semibold", 16),
+                 bg=self.SURFACE, fg=self.TEXT).pack(pady=(0, 28))
+
+        def nav_btn(text, cmd):
+            b = tk.Button(sidebar, text=text, command=cmd,
+                          font=self.FONT_BODY, bg=self.SURFACE, fg=self.TEXT,
+                          activebackground=self.ACCENT, activeforeground=self.TEXT,
+                          relief="flat", padx=16, pady=10, anchor="w",
+                          cursor="hand2", width=18)
+            b.pack(fill="x", padx=8, pady=2)
+            return b
+
+        nav_btn("＋  Add Entry", self._show_add_dialog)
+        nav_btn("🔑  Generator", self._show_generator)
+        nav_btn("🔒  Lock Vault", self._lock)
+
+        # ---- main area
+        main = tk.Frame(self, bg=self.BG)
+        main.pack(side="right", fill="both", expand=True)
+
+        # search bar
+        top = tk.Frame(main, bg=self.BG)
+        top.pack(fill="x", padx=20, pady=(20, 8))
+        tk.Label(top, text="Search:", font=self.FONT_BODY,
+                 fg=self.TEXT_DIM, bg=self.BG).pack(side="left", padx=(0, 8))
+        self._search_var = tk.StringVar()
+        search = tk.Entry(top, textvariable=self._search_var, width=30,
+                          font=self.FONT_BODY, bg=self.SURFACE, fg=self.TEXT,
+                          insertbackground=self.TEXT, relief="flat", bd=6)
+        search.pack(side="left")
+        self._search_var.trace_add("write", lambda *_: self._refresh_table())
+
+        # treeview table
+        from tkinter import ttk
+        style = ttk.Style(self)
+        style.theme_use("clam")
+        style.configure("Treeview",
+                        background=self.SURFACE, fieldbackground=self.SURFACE,
+                        foreground=self.TEXT, rowheight=30, font=self.FONT_BODY,
+                        borderwidth=0)
+        style.configure("Treeview.Heading",
+                        background=self.BG, foreground=self.TEXT_DIM,
+                        font=self.FONT_HEAD, relief="flat")
+        style.map("Treeview",
+                  background=[("selected", self.ACCENT)],
+                  foreground=[("selected", self.TEXT)])
+
+        cols = ("Title", "Username")
+        self._tree = ttk.Treeview(main, columns=cols, show="headings", selectmode="browse")
+        for col in cols:
+            self._tree.heading(col, text=col)
+            self._tree.column(col, width=280)
+
+        sb = ttk.Scrollbar(main, orient="vertical", command=self._tree.yview)
+        self._tree.configure(yscrollcommand=sb.set)
+        self._tree.pack(side="left", fill="both", expand=True, padx=(20, 0), pady=(0, 8))
+        sb.pack(side="left", fill="y", pady=(0, 8), padx=(0, 20))
+        self._tree.bind("<Double-1>", lambda _: self._show_detail())
+
+        # action bar
+        bar = tk.Frame(main, bg=self.BG)
+        bar.pack(fill="x", padx=20, pady=(0, 16))
+        self._btn(bar, "View / Edit", self._show_detail).pack(side="left", padx=(0, 8))
+        self._btn(bar, "Copy Password", self._copy_password).pack(side="left", padx=(0, 8))
+        self._btn(bar, "Delete", self._delete_entry, color=self.DANGER).pack(side="left")
+
+        self._refresh_table()
+
+    def _refresh_table(self):
+        q = self._search_var.get().strip()
+        all_entries = get_password(self.conn, self.fernet, None)
+        if q:
+            all_entries = [e for e in all_entries if q.lower() in e[1].lower()]
+        self._tree.delete(*self._tree.get_children())
+        for entry in all_entries:
+            self._tree.insert("", "end", iid=str(entry[0]), values=(entry[1], entry[2]))
+
+    def _selected_id(self):
+        sel = self._tree.selection()
+        return int(sel[0]) if sel else None
+
+    def _copy_password(self):
+        entry_id = self._selected_id()
+        if not entry_id:
+            messagebox.showinfo("Select entry", "Please select an entry first.")
+            return
+        entries = get_password(self.conn, self.fernet, None)
+        for e in entries:
+            if e[0] == entry_id:
+                self.clipboard_clear()
+                self.clipboard_append(e[3])
+                messagebox.showinfo("Copied", "Password copied to clipboard!")
+                return
+
+    def _delete_entry(self):
+        entry_id = self._selected_id()
+        if not entry_id:
+            messagebox.showinfo("Select entry", "Please select an entry first.")
+            return
+        if messagebox.askyesno("Delete", "Delete this entry permanently?"):
+            delete_password(self.conn, self._tree.item(str(entry_id))["values"][0])
+            self._refresh_table()
+
+    def _show_detail(self):
+        messagebox.showinfo("Coming soon", "Edit dialog coming next!")
+
+    def _show_add_dialog(self):
+        messagebox.showinfo("Coming soon", "Add dialog coming next!")
+
+    def _show_generator(self):
+        messagebox.showinfo("Coming soon", "Generator coming next!")
+
+    def _lock(self):
+        self.fernet = None
+        self._show_unlock()
 
     def on_close(self):
         self.conn.close()
