@@ -39,11 +39,11 @@ def create_password(conn, fernet: Fernet, title, username, password):
     cursor.close()
 
 
-def update_password(conn, fernet: Fernet, title, username, new_password):
+def update_password(conn, fernet: Fernet, entry_id, title, username, new_password):
     enc_password = fernet.encrypt(new_password.encode())
     cursor = conn.cursor()
 
-    cursor.execute('UPDATE users SET password = ? WHERE title = ? AND username = ?', (enc_password, title, username))
+    cursor.execute('UPDATE users SET title = ?, username = ?, password = ? WHERE id = ?', (title, username, enc_password, entry_id))
 
     conn.commit()
     cursor.close()

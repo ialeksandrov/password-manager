@@ -243,10 +243,99 @@ class PasswordManagerApp(tk.Tk):
             self._refresh_table()
 
     def _show_detail(self):
-        messagebox.showinfo("Coming soon", "Edit dialog coming next!")
+        entry_id = self._selected_id()
+        if not entry_id:
+            messagebox.showinfo("Select entry", "Please select an entry first.")
+            return
+        self._show_add_dialog(entry_id)
 
-    def _show_add_dialog(self):
-        messagebox.showinfo("Coming soon", "Add dialog coming next!")
+    def _show_add_dialog(self, entry_id=None):
+        existing = None
+        if entry_id:
+            entries = get_password(self.conn, self.fernet, None)
+            for e in entries:
+                if e[0] == entry_id:
+                    existing = e
+                    break
+
+        dlg = tk.Toplevel(self)
+        dlg.title("Edit Entry" if entry_id else "Add Entry")
+        dlg.configure(bg=self.BG)
+        dlg.geometry("420x340")
+        dlg.resizable(False, False)
+        dlg.grab_set()
+
+        pad = dict(padx=24, pady=6)
+
+        def row_label(text):
+            tk.Label(dlg, text=text, font=self.FONT_BODY,
+                     fg=self.TEXT_DIM, bg=self.BG, anchor="w").pack(fill="x", **pad)
+
+        def row_entry(show=""):
+            e = self._entry(dlg, show=show, width=40)
+            e.pack(fill="x", **pad)
+            return e
+
+        row_label("Site / App")
+        site_e = row_entry()
+
+        row_label("Username / Email")
+        user_e = row_entry()
+
+        pw_frame = tk.Frame(dlg, bg=self.BG)
+        pw_frame.pack(fill="x", padx=24, pady=6)
+        tk.Label(pw_frame, text="Password", font=self.FONT_BODY,
+                 fg=self.TEXT_DIM, bg=self.BG).pack(anchor="w")
+
+        pw_inner = tk.Frame(pw_frame, bg=self.BG)
+        pw_inner.pack(fill="x")
+        pw_e = self._entry(pw_inner, show="●", width=30)
+        pw_e.pack(side="left", fill="x", expand=True)
+
+        def gen_pw():
+            pw_e.config(show="")
+            pw_e.delete(0, tk.END)
+            pw_e.insert(0, generate_password(20))
+
+        self._btn(pw_inner, "⟳", gen_pw, width=3).pack(side="left", padx=(6, 0))
+
+        show_var = tk.BooleanVar(value=False)
+
+        def toggle_show():
+            pw_e.config(show="" if show_var.get() else "●")
+
+        tk.Checkbutton(pw_inner, text="Show", variable=show_var, command=toggle_show,
+                       bg=self.BG, fg=self.TEXT_DIM, selectcolor=self.SURFACE,
+                       activebackground=self.BG, font=self.FONT_BODY).pack(side="left", padx=6)
+
+        # pre-fill if editing
+        if existing:
+            site_e.insert(0, existing[1])
+            user_e.insert(0, existing[2])
+            pw_e.insert(0, existing[3])
+
+        def save():
+            site = site_e.get().strip()
+            user = user_e.get().strip()
+            pw = pw_e.get()
+
+            if not site or not user or not pw:
+                messagebox.showwarning("Missing fields", "Site, username and password are required.")
+                return
+
+            if entry_id:
+                update_password(self.conn, self.fernet, entry_id, site, user, pw)
+            else:
+                try:
+                    create_password(self.conn, self.fernet, site, user, pw)
+                except Exception as e:
+                    messagebox.showerror("Error", str(e))
+                    return
+
+            self._refresh_table()
+            dlg.destroy()
+
+        self._btn(dlg, "Save Entry", save).pack(pady=(8, 0))
 
     def _show_generator(self):
         messagebox.showinfo("Coming soon", "Generator coming next!")
