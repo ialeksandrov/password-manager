@@ -6,6 +6,7 @@ import sqlite3
 from db import get_conn, setup_db, create_password, get_password, update_password, delete_password
 from crypto_utils import init_master, unlock_vault
 from generator import generate_password
+from strength import check_strength
 
 
 class PasswordManagerApp(tk.Tk):
@@ -63,6 +64,51 @@ class PasswordManagerApp(tk.Tk):
             bg=c, fg=self.TEXT,
             activebackground=self.ACCENT_LT, activeforeground=self.TEXT,
             relief="flat", padx=14, pady=6, cursor="hand2", **kwargs)
+
+    def _strength_widget(self, parent) -> tuple:
+        """
+        Build a strength bar + label + tips block.
+        Returns (frame, update_fn) — call update_fn(password) to refresh.
+        """
+        frame = tk.Frame(parent, bg=self.BG)
+
+        # bar track
+        bar_track = tk.Frame(frame, bg=self.SURFACE, height=6)
+        bar_track.pack(fill="x", pady=(4, 2))
+        bar_track.pack_propagate(False)
+        bar_fill = tk.Frame(bar_track, bg=self.SURFACE, height=6)
+        bar_fill.place(x=0, y=0, relheight=1.0, relwidth=0.0)
+
+        # label row
+        lbl_row = tk.Frame(frame, bg=self.BG)
+        lbl_row.pack(fill="x")
+        strength_lbl = tk.Label(lbl_row, text="", font=("Segoe UI Semibold", 9),
+                                fg=self.TEXT_DIM, bg=self.BG, anchor="w")
+        strength_lbl.pack(side="left")
+
+        # tips
+        tips_lbl = tk.Label(frame, text="", font=("Segoe UI", 8),
+                            fg=self.TEXT_DIM, bg=self.BG, anchor="w", justify="left", wraplength=320)
+        tips_lbl.pack(fill="x", pady=(2, 0))
+
+        def update(pw: str):
+            if not pw:
+                bar_fill.place(relwidth=0.0)
+                strength_lbl.config(text="", fg=self.TEXT_DIM)
+                tips_lbl.config(text="")
+                return
+            result = check_strength(pw)
+            frac = (result.score + 1) / 5.0
+            bar_fill.place(relwidth=frac)
+            bar_fill.config(bg=result.color)
+            strength_lbl.config(text=result.label, fg=result.color)
+            tips_lbl.config(
+                text=" · ".join(result.tips) if result.tips else "✓ Looks good",
+                fg=self.TEXT_DIM if result.tips else self.SUCCESS,
+            )
+
+        return frame, update
+
 
     def _show_setup(self):
         self._clear()
@@ -261,7 +307,7 @@ class PasswordManagerApp(tk.Tk):
         dlg = tk.Toplevel(self)
         dlg.title("Edit Entry" if entry_id else "Add Entry")
         dlg.configure(bg=self.BG)
-        dlg.geometry("420x340")
+        dlg.geometry("420x400")
         dlg.resizable(False, False)
         dlg.grab_set()
 
@@ -296,6 +342,7 @@ class PasswordManagerApp(tk.Tk):
             pw_e.config(show="")
             pw_e.delete(0, tk.END)
             pw_e.insert(0, generate_password(20))
+            strength_update(pw_e.get())
 
         self._btn(pw_inner, "⟳", gen_pw, width=3).pack(side="left", padx=(6, 0))
 
@@ -308,11 +355,21 @@ class PasswordManagerApp(tk.Tk):
                        bg=self.BG, fg=self.TEXT_DIM, selectcolor=self.SURFACE,
                        activebackground=self.BG, font=self.FONT_BODY).pack(side="left", padx=6)
 
+        # strength indicator
+        strength_frame, strength_update = self._strength_widget(pw_frame)
+        strength_frame.pack(fill="x", pady=(6, 0))
+
+        def _on_pw_change(*_):
+            strength_update(pw_e.get())
+
+        pw_e.bind("<KeyRelease>", _on_pw_change)
+
         # pre-fill if editing
         if existing:
             site_e.insert(0, existing[1])
             user_e.insert(0, existing[2])
             pw_e.insert(0, existing[3])
+            strength_update(existing)
 
         def save():
             site = site_e.get().strip()
@@ -338,7 +395,50 @@ class PasswordManagerApp(tk.Tk):
         self._btn(dlg, "Save Entry", save).pack(pady=(8, 0))
 
     def _show_generator(self):
-        messagebox.showinfo("Coming soon", "Generator coming next!")
+        dlg = tk.Toplevel(self)
+        dlg.title("Password Generator")
+        dlg.configure(bg=self.BG)
+        dlg.geometry("380x320")
+        dlg.resizable(False, False)
+        dlg.grab_set()
+
+        tk.Label(dlg, text="Password Generator", font=self.FONT_HEAD,
+                 fg=self.TEXT, bg=self.BG).pack(pady=(20, 12))
+
+        # length selector
+        length_frame = tk.Frame(dlg, bg=self.BG)
+        length_frame.pack(pady=(0, 12))
+        tk.Label(length_frame, text="Length:", font=self.FONT_BODY,
+                 fg=self.TEXT_DIM, bg=self.BG).pack(side="left", padx=(0, 8))
+        length_var = tk.IntVar(value=20)
+        tk.Spinbox(length_frame, from_=8, to=64, textvariable=length_var, width=5,
+                   font=self.FONT_BODY, bg=self.SURFACE, fg=self.TEXT,
+                   buttonbackground=self.SURFACE, relief="flat").pack(side="left")
+
+        # generated password display
+        result_var = tk.StringVar(value=generate_password(20))
+        result_entry = tk.Entry(dlg, textvariable=result_var, width=36,
+                                font=self.FONT_MONO, bg=self.SURFACE, fg=self.ACCENT_LT,
+                                insertbackground=self.TEXT, relief="flat", bd=8, state="readonly")
+        result_entry.pack(pady=(0, 16), padx=24)
+        gen_strength_frame, gen_strength_update = self._strength_widget(dlg)
+        gen_strength_frame.pack(fill="x", padx=24, pady=(0, 12))
+        gen_strength_update(result_var.get())
+
+        def gen():
+            result_var.set(generate_password(length_var.get()))
+            gen_strength_update(pw)
+
+        def copy():
+            self.clipboard_clear()
+            self.clipboard_append(result_var.get())
+            messagebox.showinfo("Copied", "Password copied to clipboard!")
+
+        # buttons
+        btn_row = tk.Frame(dlg, bg=self.BG)
+        btn_row.pack()
+        self._btn(btn_row, "⟳  Generate", gen).pack(side="left", padx=6)
+        self._btn(btn_row, "Copy", copy).pack(side="left", padx=6)
 
     def _lock(self):
         self.fernet = None
