@@ -369,7 +369,7 @@ class PasswordManagerApp(tk.Tk):
             site_e.insert(0, existing[1])
             user_e.insert(0, existing[2])
             pw_e.insert(0, existing[3])
-            strength_update(existing)
+            strength_update(existing[3])
 
         def save():
             site = site_e.get().strip()
