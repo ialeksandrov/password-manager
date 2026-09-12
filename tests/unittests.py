@@ -4,6 +4,7 @@ import base64
 import hashlib
 import os
 import sys
+import string
 
 from cryptography import fernet
 
@@ -127,7 +128,7 @@ class TestPasswordManager(unittest.TestCase):
 
 
     def test_update_nonexistent_entry(self):
-        update_password(self.conn, self.fernet, "Nonexistent", "secret123", "secret1234")
+        update_password(self.conn, self.fernet, 9999, "Nonexistent", "secret123", "secret1234")
         entries = get_password(self.conn, self.fernet, None)
         self.assertEqual(len(entries), 0)
 
@@ -136,6 +137,22 @@ class TestPasswordManager(unittest.TestCase):
         delete_password(self.conn, "Nonexistent")
         entries = get_password(self.conn, self.fernet, None)
         self.assertEqual(len(entries), 0)
+
+    def test_generate_password_only_letters(self):
+        password = generate_password(12, use_digits=False, use_symbols=False)
+        self.assertTrue(all(c in string.ascii_letters for c in password))
+
+    def test_generate_password_only_digits(self):
+        password = generate_password(12, use_letters=False, use_symbols=False)
+        self.assertTrue(all(c in string.digits for c in password))
+
+    def test_generate_password_only_symbols(self):
+        password = generate_password(12, use_letters=False, use_digits=False)
+        self.assertTrue(all(c in "!@#$%^&*()-_=+" for c in password))
+
+    def test_generate_password_no_options_raises_error(self):
+        with self.assertRaises(ValueError):
+            generate_password(12, use_letters=False, use_digits=False, use_symbols=False)
 
 
 if __name__ == "__main__":

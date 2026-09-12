@@ -398,7 +398,7 @@ class PasswordManagerApp(tk.Tk):
         dlg = tk.Toplevel(self)
         dlg.title("Password Generator")
         dlg.configure(bg=self.BG)
-        dlg.geometry("380x320")
+        dlg.geometry("380x360")
         dlg.resizable(False, False)
         dlg.grab_set()
 
@@ -415,6 +415,24 @@ class PasswordManagerApp(tk.Tk):
                    font=self.FONT_BODY, bg=self.SURFACE, fg=self.TEXT,
                    buttonbackground=self.SURFACE, relief="flat").pack(side="left")
 
+        # character type options
+        options_frame = tk.Frame(dlg, bg=self.BG)
+        options_frame.pack(pady=(0, 12))
+
+        use_letters = tk.BooleanVar(value=True)
+        use_digits = tk.BooleanVar(value=True)
+        use_symbols = tk.BooleanVar(value=True)
+
+        def make_checkbox(parent, text, variable):
+            tk.Checkbutton(parent, text=text, variable=variable,
+                           bg=self.BG, fg=self.TEXT, selectcolor=self.SURFACE,
+                           activebackground=self.BG, activeforeground=self.TEXT,
+                           font=self.FONT_BODY, command=len).pack(side="left", padx=8)
+
+        make_checkbox(options_frame, "Letters", use_letters)
+        make_checkbox(options_frame, "Digits", use_digits)
+        make_checkbox(options_frame, "Symbols", use_symbols)
+
         # generated password display
         result_var = tk.StringVar(value=generate_password(20))
         result_entry = tk.Entry(dlg, textvariable=result_var, width=36,
@@ -426,8 +444,17 @@ class PasswordManagerApp(tk.Tk):
         gen_strength_update(result_var.get())
 
         def gen():
-            result_var.set(generate_password(length_var.get()))
-            gen_strength_update(pw)
+            try:
+                pw = generate_password(
+                    length_var.get(),
+                    use_letters=use_letters.get(),
+                    use_digits=use_digits.get(),
+                    use_symbols=use_symbols.get(),
+                )
+                result_var.set(pw)
+                gen_strength_update(pw)
+            except ValueError:
+                messagebox.showwarning("Invalid", "At least one character type must be selected.")
 
         def copy():
             self.clipboard_clear()
